@@ -1,0 +1,80 @@
+import SwiftUI
+
+struct ViewLifecycle: View {
+    @State private var shouldIncreaseFont = false
+    @State private var fontSize = 20.0
+    let products = ["iPhone", "iMac", "iWatch", "AppleTV"]
+    @State private var showSheet = false
+    var body: some View {
+        NavigationStack{
+            VStack{
+                Toggle(isOn: $shouldIncreaseFont) {
+                    Text("Change the font")
+                }
+                .padding()
+                if shouldIncreaseFont{
+                    Slider(value: $fontSize,in: 15...30)
+                        .padding()
+                        .onAppear{
+                            print("Slider View Appear")
+                        }
+                        .onDisappear{
+                            print("Slider View Disappear")
+                        }
+                }
+                List(products,id:\.self){
+                    product in
+                    VStack{
+                        HStack{
+                            Text(product)
+                            Button(""){
+                                showSheet = true
+                            }
+                            .font(.title)
+                        }
+                    }
+                    .sheet(isPresented: $showSheet) {
+                        DetailProduct(product: product)
+                    }
+                }
+            }
+            .padding()
+            .navigationTitle("Product List")
+        }
+        .onAppear{
+            print("Main View Appear")
+        }
+        .onDisappear{
+            print("Main View Disappear")
+        }
+        
+    }
+}
+struct DetailProduct:View {
+    @Environment(\.dismiss) private var dismiss
+    let product : String
+    var body: some View {
+        VStack{
+            Text(product)
+        }
+        .navigationTitle("Product Detail")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar{
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Done"){
+                    dismiss()
+                }
+            }
+        }
+        .onAppear{
+            print("Detail View Appear")
+        }
+        .onDisappear{
+            print("Detail View Disappear")
+        }
+        
+    }
+}
+#Preview {
+    ViewLifecycle()
+}
